@@ -1,0 +1,160 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #f0f2f5;
+  min-height: 100vh;
+}
+
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.login-card {
+  width: 420px;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.login-logo {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.login-logo h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1677ff;
+  margin-top: 10px;
+}
+
+.login-logo p {
+  color: #8c8c8c;
+  margin-top: 5px;
+}
+
+.dashboard-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.stat-card {
+  text-align: center;
+  padding: 20px;
+}
+
+.stat-card .stat-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: #1677ff;
+}
+
+.stat-card .stat-label {
+  font-size: 14px;
+  color: #8c8c8c;
+  margin-top: 4px;
+}
+
+.table-card {
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-align: center;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.table-card:hover {
+  transform: scale(1.05);
+}
+
+.table-card.free {
+  border-color: #52c41a;
+  background: #f6ffed;
+}
+
+.table-card.occupied {
+  border-color: #ff4d4f;
+  background: #fff2f0;
+}
+
+.table-card.reserved {
+  border-color: #faad14;
+  background: #fffbe6;
+}
+
+.table-card.needs_cleaning {
+  border-color: #8c8c8c;
+  background: #fafafa;
+}
+
+.order-status-new { color: #1677ff; }
+.order-status-confirmed { color: #722ed1; }
+.order-status-preparing { color: #fa8c16; }
+.order-status-ready { color: #52c41a; }
+.order-status-served { color: #13c2c2; }
+.order-status-paid { color: #8c8c8c; }
+.order-status-cancelled { color: #ff4d4f; }
+
+.leaderboard-rank-1 { color: #faad14; font-weight: 700; font-size: 18px; }
+.leaderboard-rank-2 { color: #8c8c8c; font-weight: 600; font-size: 16px; }
+.leaderboard-rank-3 { color: #d48806; font-weight: 600; font-size: 16px; }
+
+.kitchen-card {
+  border-radius: 12px;
+  margin-bottom: 12px;
+  transition: all 0.3s;
+}
+
+.kitchen-card.urgent {
+  border-left: 4px solid #ff4d4f;
+}
+
+.kitchen-card.normal {
+  border-left: 4px solid #faad14;
+}
+
+.kitchen-card.done {
+  border-left: 4px solid #52c41a;
+}
+
+.achievement-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  margin: 2px;
+}
+
+.page-header {
+  margin-bottom: 24px;
+}
+
+.page-header h2 {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0;
+}
