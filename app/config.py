@@ -4,24 +4,12 @@ import os
 
 
 class Settings(BaseSettings):
-    # Для Railway используем переменную PORT
-    PORT: int = int(os.getenv("PORT", 8000))
-    
     # База данных
-    DATABASE_URL: str = os.getenv(
-        "DATABASE_URL",
-        "postgresql+asyncpg://restaurant_user:restaurant_pass@localhost:5433/restaurant_db"
-    )
-    DATABASE_URL_SYNC: str = os.getenv(
-        "DATABASE_URL_SYNC",
-        "postgresql://restaurant_user:restaurant_pass@localhost:5433/restaurant_db"
-    )
+    DATABASE_URL: str
+    DATABASE_URL_SYNC: str
     
     # Безопасность
-    SECRET_KEY: str = os.getenv(
-        "SECRET_KEY",
-        "super-secret-key-change-in-production-1234567890"
-    )
+    SECRET_KEY: str
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 480
     
@@ -32,6 +20,7 @@ class Settings(BaseSettings):
 
     class Config:
         env_file = ".env"
+        case_sensitive = False
 
 
 @lru_cache()
