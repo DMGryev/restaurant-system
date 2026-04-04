@@ -1,11 +1,11 @@
 """
 Скрипт для заполнения базы тестовыми данными.
-Запуск: python -m scripts.seed_data
 """
 import asyncio
 import sys
 import os
 
+# Добавляем корневую папку в путь
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
@@ -22,6 +22,8 @@ async def seed():
     engine = create_async_engine(settings.DATABASE_URL, echo=False)
 
     async with engine.begin() as conn:
+        # Удаляем старые таблицы и создаём новые
+        await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
 
     async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
@@ -189,15 +191,6 @@ async def seed():
 
         await db.commit()
         print("✅ Seed data loaded successfully!")
-        print()
-        print("📋 Тестовые аккаунты:")
-        print("  Admin:     admin / admin123")
-        print("  Manager:   manager / manager123")
-        print("  Waiter 1:  waiter1 / waiter123")
-        print("  Waiter 2:  waiter2 / waiter123")
-        print("  Cook 1:    cook1 / cook123")
-        print("  Cook 2:    cook2 / cook123")
-        print("  Bartender: bartender1 / bar123")
 
 
 if __name__ == "__main__":

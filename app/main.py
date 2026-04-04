@@ -71,3 +71,35 @@ async def root():
 @app.get("/health")
 async def health():
     return {"status": "healthy"}
+
+
+@app.post("/init-database")
+async def init_database():
+    """
+    Инициализация базы данных тестовыми данными.
+    ⚠️ УДАЛИ ЭТОТ ЭНДПОИНТ ПОСЛЕ ПЕРВОГО ЗАПУСКА!
+    """
+    import sys
+    import os
+    sys.path.insert(0, os.path.dirname(__file__))
+    
+    # Импортируем функцию seed
+    from scripts.seed_data import seed
+    
+    try:
+        await seed()
+        return {
+            "status": "success",
+            "message": "✅ База данных заполнена тестовыми данными!",
+            "accounts": {
+                "admin": "admin / admin123",
+                "manager": "manager / manager123",
+                "waiter1": "waiter1 / waiter123",
+                "cook1": "cook1 / cook123"
+            }
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": f"❌ Ошибка: {str(e)}"
+        }
