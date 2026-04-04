@@ -18,4 +18,7 @@ export const crmAPI = {
 
   addVisit: (customerId, amount) =>
     client.post(`/crm/customers/${customerId}/visits?amount=${amount}`),
+  
+  searchCustomers: (query) =>
+    client.get('/crm/search', { params: { query } }),
 }
