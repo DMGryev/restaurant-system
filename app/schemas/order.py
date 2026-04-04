@@ -60,7 +60,8 @@ class OrderItemResponse(BaseModel):
 
 class OrderCreate(BaseModel):
     table_id: Optional[int] = None
-    customer_id: Optional[int] = None
+    customer_id: Optional[int] = None  # ← ID клиента из CRM
+    customer_phone: Optional[str] = None  # ← Или поиск по телефону
     items: List[OrderItemCreate]
     notes: Optional[str] = None
 
@@ -89,6 +90,10 @@ class OrderResponse(BaseModel):
     ready_at: Optional[datetime] = None
     served_at: Optional[datetime] = None
     paid_at: Optional[datetime] = None
+    
+    # Добавим информацию о клиенте
+    customer_name: Optional[str] = None
+    customer_discount: Optional[float] = None
 
     class Config:
         from_attributes = True

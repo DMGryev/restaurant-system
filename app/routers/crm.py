@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from typing import List, Optional
+from typing import List
 from app.database import get_db
 from app.models.crm import Customer, CustomerVisit
 from app.models.user import User, Role
@@ -104,3 +104,27 @@ async def new_visit(
 ):
     visit = await record_visit(db, customer_id, amount)
     return CustomerVisitResponse.model_validate(visit)
+
+@router.get("/search", response_model=List[CustomerResponse])
+async def search_customers(
+    query: str = Query(..., min_length=1, description="Телефон, email или имя"),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Быстрый поиск клиентов для привязки к заказу"""
+    
+    print(f"🔍 Searching for: {query}")  # ← ОТЛАДКА
+    
+    result = await db.execute(
+        select(Customer).where(
+            (Customer.phone.ilike(f"%{query}%")) |
+            (Customer.email.ilike(f"%{query}%")) |
+            (Customer.first_name.ilike(f"%{query}%")) |
+            (Customer.last_name.ilike(f"%{query}%"))
+        ).limit(10)
+    )
+    
+    customers = result.scalars().all()
+    print(f"✅ Found {len(customers)} customers")  # ← ОТЛАДКА
+    
+    return [CustomerResponse.model_validate(c) for c in customers]
