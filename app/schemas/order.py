@@ -90,10 +90,6 @@ class OrderResponse(BaseModel):
     ready_at: Optional[datetime] = None
     served_at: Optional[datetime] = None
     paid_at: Optional[datetime] = None
-    
-    # Добавим информацию о клиенте
-    customer_name: Optional[str] = None
-    customer_discount: Optional[float] = None
 
     class Config:
         from_attributes = True

@@ -31,14 +31,22 @@ export default function OrdersPage() {
   }
 
   const updateStatus = async (orderId, status) => {
-    try {
-      await ordersAPI.updateOrder(orderId, { status })
-      message.success(`Статус обновлён: ${statusLabels[status]}`)
-      loadOrders()
-    } catch (e) {
-      message.error('Ошибка обновления статуса')
-    }
+  try {
+    console.log('🔄 Updating order', orderId, 'to status', status)  // ← ДОБАВЬ
+    
+    await ordersAPI.updateOrder(orderId, { status })
+    
+    console.log('✅ Status updated successfully')  // ← ДОБАВЬ
+    
+    message.success(`Статус обновлён: ${statusLabels[status]}`)
+    loadOrders()
+  } catch (e) {
+    console.error('❌ Update error:', e)  // ← ДОБАВЬ
+    console.error('Response:', e.response?.data)  // ← ДОБАВЬ
+    
+    message.error('Ошибка обновления статуса')
   }
+}
 
   const statusColors = {
     new: 'blue',

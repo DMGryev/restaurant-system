@@ -159,7 +159,6 @@ async def update_order(
         elif new_status == OrderStatus.PAID:
             order.paid_at = now_local()
             
-            # Освобождаем стол
             if order.table_id:
                 result = await db.execute(
                     select(Table).where(Table.id == order.table_id)
@@ -168,7 +167,6 @@ async def update_order(
                 if table:
                     table.status = TableStatus.NEEDS_CLEANING
 
-            # Баллы официанту
             await award_points(
                 db, order.waiter_id, 10,
                 BonusType.QUALITY,
@@ -176,7 +174,6 @@ async def update_order(
                 order.id
             )
             
-            # Записываем визит клиента
             if order.customer_id:
                 from app.services.order_service import record_customer_visit
                 await record_customer_visit(db, order.customer_id, order.final_amount)
@@ -200,17 +197,7 @@ async def update_order(
     await db.refresh(order)
 
     order = await get_order_with_items(db, order_id)
-    
-    # Добавляем информацию о клиенте в ответ
-    response_data = OrderResponse.model_validate(order)
-    if order.customer_id:
-        result = await db.execute(select(Customer).where(Customer.id == order.customer_id))
-        customer = result.scalar_one_or_none()
-        if customer:
-            response_data.customer_name = f"{customer.first_name} {customer.last_name or ''}".strip()
-            response_data.customer_discount = customer.discount_percent
-    
-    return response_data
+    return OrderResponse.model_validate(order)
 
 @router.patch("/{order_id}/items/{item_id}", response_model=OrderItemResponse)
 async def update_item_status(
