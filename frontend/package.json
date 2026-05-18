@@ -1,28 +1,99 @@
 {
-    "name": "restaurant-frontend",
-    "private": true,
-    "version": "1.0.0",
-    "type": "module",
-    "scripts": {
-      "dev": "vite",
-      "build": "vite build",
-      "preview": "vite preview"
+  "name": "restaurant-desktop",
+  "version": "1.0.0",
+  "description": "🍽️ Restaurant Management System",
+  "author": {
+    "name": "Dmitry Grigoriev",
+    "email": "newdim2005@mail.ru"
+  },
+  "main": "electron/main.js",
+  "homepage": "./",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "build:electron": "vite build --config vite.config.electron.js",
+    "preview": "vite preview",
+    "serve:dist": "npx serve dist -p 3001",
+    "electron:dev": "concurrently \"cross-env NODE_ENV=development npm run dev\" \"wait-on http://localhost:3000 && cross-env NODE_ENV=development electron .\"",
+    "electron:build": "npm run build:electron && electron-builder",
+    "electron:build:win": "npm run build:electron && electron-builder --win --x64",
+    "dist": "npm run build:electron && electron-builder --win --x64",
+    "clean": "rimraf dist dist-electron node_modules/.vite",
+    "rebuild": "npm run clean && npm install && npm run electron:build:win"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.21.1",
+    "antd": "^5.12.5",
+    "@ant-design/icons": "^5.2.6",
+    "axios": "^1.6.3",
+    "zustand": "^4.4.7",
+    "dayjs": "^1.11.10",
+    "recharts": "^2.10.3"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.43",
+    "@types/react-dom": "^18.2.17",
+    "@vitejs/plugin-react": "^4.2.1",
+    "vite": "^5.0.8",
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1",
+    "concurrently": "^8.2.2",
+    "wait-on": "^7.2.0",
+    "cross-env": "^7.0.3",
+    "rimraf": "^5.0.5"
+  },
+  "build": {
+    "appId": "com.restaurant.desktop",
+    "productName": "RestaurantOS",
+    "copyright": "Copyright © 2024 Dmitry Grigoriev",
+    "directories": {
+      "output": "dist-electron",
+      "buildResources": "public"
     },
-    "dependencies": {
-      "react": "^18.2.0",
-      "react-dom": "^18.2.0",
-      "react-router-dom": "^6.21.1",
-      "antd": "^5.12.5",
-      "@ant-design/icons": "^5.2.6",
-      "axios": "^1.6.3",
-      "zustand": "^4.4.7",
-      "dayjs": "^1.11.10",
-      "recharts": "^2.10.3"
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json",
+      "!node_modules",
+      "!src",
+      "!public",
+      "!*.md"
+    ],
+    "extraFiles": [
+      {
+        "from": "dist",
+        "to": "dist",
+        "filter": ["**/*"]
+      }
+    ],
+    "asarUnpack": [
+      "dist/**/*"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "public/icon.ico",
+      "artifactName": "${productName}-Setup-${version}.${ext}"
     },
-    "devDependencies": {
-      "@types/react": "^18.2.43",
-      "@types/react-dom": "^18.2.17",
-      "@vitejs/plugin-react": "^4.2.1",
-      "vite": "^5.0.8"
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "allowElevation": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "RestaurantOS",
+      "installerIcon": "public/icon.ico",
+      "uninstallerIcon": "public/icon.ico",
+      "installerHeaderIcon": "public/icon.ico",
+      "deleteAppDataOnUninstall": false,
+      "runAfterFinish": true
     }
   }
+}

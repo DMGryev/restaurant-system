@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 
 from app.config import settings
 from app.database import engine, Base
-from app.routers import auth, users, menu, tables, orders, crm, gamification, analytics, websockets
+from app.routers import auth, users, menu, tables, orders, crm, gamification, analytics, websockets, qr
 
 
 @asynccontextmanager
@@ -56,7 +56,7 @@ app.include_router(crm.router, prefix="/api/v1")
 app.include_router(gamification.router, prefix="/api/v1")
 app.include_router(analytics.router, prefix="/api/v1")
 app.include_router(websockets.router, prefix="/api/v1")
-
+app.include_router(qr.router, prefix="/api/v1")
 
 @app.get("/")
 async def root():

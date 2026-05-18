@@ -16,7 +16,7 @@ import AnalyticsPage from './components/Analytics/AnalyticsPage'
 
 const ProtectedRoute = ({ children }) => {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
-  return isAuthenticated ? children : <Navigate to="/login" />
+  return isAuthenticated ? children : <Navigate to="/login" replace />
 }
 
 export default function App() {
@@ -26,7 +26,7 @@ export default function App() {
     <Routes>
       <Route
         path="/login"
-        element={isAuthenticated ? <Navigate to="/" /> : <LoginForm />}
+        element={isAuthenticated ? <Navigate to="/" replace /> : <LoginForm />}
       />
       <Route
         path="/"
@@ -47,7 +47,7 @@ export default function App() {
         <Route path="users" element={<UsersPage />} />
         <Route path="analytics" element={<AnalyticsPage />} />
       </Route>
-      <Route path="*" element={<Navigate to="/" />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
 }

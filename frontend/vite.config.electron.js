@@ -3,17 +3,14 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  base: './', 
-  server: {
-    port: 3000,
-  },
+  base: './', // Относительные пути для Electron
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
     emptyOutDir: true,
     rollupOptions: {
       output: {
-        manualChunks: undefined, 
+        manualChunks: undefined,
       },
     },
   },

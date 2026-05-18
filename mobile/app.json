@@ -1,0 +1,34 @@
+{
+  "expo": {
+    "name": "RestaurantOS",
+    "slug": "restaurant-os-mobile",
+    "version": "1.0.0",
+    "orientation": "landscape",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#1677ff"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#1677ff"
+      },
+      "package": "com.restaurant.mobile",
+      "permissions": [
+        "CAMERA",
+        "INTERNET"
+      ]
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Разрешите доступ к камере для сканирования QR-бейджиков"
+        }
+      ]
+    ]
+  }
+}
