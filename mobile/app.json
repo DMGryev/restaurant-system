@@ -6,6 +6,7 @@
     "orientation": "landscape",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+    "newArchEnabled": false,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -17,7 +18,7 @@
         "backgroundColor": "#1677ff"
       },
       "package": "com.restaurant.mobile",
-      "permissions": ["CAMERA", "INTERNET"]
+      "permissions": ["android.permission.CAMERA"]
     },
     "plugins": [
       [
