@@ -14,17 +14,10 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png",
         "backgroundColor": "#1677ff"
       },
       "package": "com.restaurant.mobile",
-      "permissions": [
-        "CAMERA",
-        "INTERNET",
-        "android.permission.CAMERA",
-        "android.permission.RECORD_AUDIO"
-      ]
+      "permissions": ["CAMERA", "INTERNET"]
     },
     "plugins": [
       [
