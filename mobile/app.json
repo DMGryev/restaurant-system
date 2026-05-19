@@ -7,22 +7,19 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#1677ff"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png",
         "backgroundColor": "#1677ff"
       },
       "package": "com.restaurant.mobile",
-      "permissions": [
-        "CAMERA",
-        "INTERNET",
-        "android.permission.CAMERA",
-        "android.permission.RECORD_AUDIO"
-      ]
+      "permissions": ["CAMERA", "INTERNET"]
     },
     "plugins": [
       [
@@ -31,11 +28,6 @@
           "cameraPermission": "Разрешите доступ к камере для сканирования QR-бейджиков"
         }
       ]
-    ],
-    "extra": {
-      "eas": {
-        "projectId": "41613533-f132-4542-bea1-965c5127580d"
-      }
-    }
+    ]
   }
 }
