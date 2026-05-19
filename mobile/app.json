@@ -19,7 +19,12 @@
         "backgroundColor": "#1677ff"
       },
       "package": "com.restaurant.mobile",
-      "permissions": ["CAMERA", "INTERNET"]
+      "permissions": [
+        "CAMERA",
+        "INTERNET",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "plugins": [
       [
@@ -28,6 +33,11 @@
           "cameraPermission": "Разрешите доступ к камере для сканирования QR-бейджиков"
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "41613533-f132-4542-bea1-965c5127580d"
+      }
+    }
   }
 }
