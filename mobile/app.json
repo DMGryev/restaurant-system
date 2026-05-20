@@ -22,8 +22,7 @@
         "android.permission.CAMERA",
         "android.permission.INTERNET",
         "android.permission.ACCESS_NETWORK_STATE"
-      ],
-      "usesCleartextTraffic": true
+      ]
     },
     "plugins": [
       [
@@ -31,7 +30,8 @@
         {
           "cameraPermission": "Разрешите доступ к камере для сканирования QR-бейджиков"
         }
-      ]
+      ],
+      "./plugins/withNetworkSecurity"
     ],
     "extra": {
       "eas": {
