@@ -1,12 +1,16 @@
 import axios from 'axios'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
+// Убедись что URL точно правильный
 const API_URL = 'https://restaurant-system-production-95b4.up.railway.app/api/v1'
 
 const client = axios.create({
   baseURL: API_URL,
-  headers: { 'Content-Type': 'application/json' },
-  timeout: 10000,
+  headers: { 
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  },
+  timeout: 15000,
 })
 
 client.interceptors.request.use(async (config) => {

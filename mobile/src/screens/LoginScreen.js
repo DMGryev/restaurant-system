@@ -24,15 +24,35 @@ export default function LoginScreen({ navigation }) {
       Alert.alert('Ошибка', 'Введите логин и пароль')
       return
     }
+
     setLoading(true)
+
     try {
-      const res = await client.post('/auth/login', { username, password })
+      console.log('Попытка входа:', username)
+      console.log('URL:', client.defaults.baseURL + '/auth/login')
+
+      const res = await client.post('/auth/login', {
+        username: username.trim(),
+        password: password,
+      })
+
+      console.log('Ответ:', JSON.stringify(res.data))
+
       const { access_token, user } = res.data
       await login(access_token, user)
+
     } catch (e) {
+      // Показываем максимум информации об ошибке
+      const status = e.response?.status
+      const detail = e.response?.data?.detail
+      const data = e.response?.data
+      const message = e.message
+
       Alert.alert(
-        'Ошибка входа',
-        e.response?.data?.detail || 'Неверный логин или пароль'
+        `Ошибка ${status || 'сети'}`,
+        `URL: ${client.defaults.baseURL}/auth/login\n\n` +
+        `Сообщение: ${message}\n\n` +
+        `Ответ: ${JSON.stringify(data) || 'нет ответа'}`
       )
     } finally {
       setLoading(false)
@@ -56,6 +76,7 @@ export default function LoginScreen({ navigation }) {
           onChangeText={setUsername}
           autoCapitalize="none"
           autoCorrect={false}
+          keyboardType="default"
         />
         <TextInput
           style={styles.input}
