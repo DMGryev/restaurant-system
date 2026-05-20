@@ -20,34 +20,32 @@ export default function LoginScreen({ navigation }) {
   const login = useAuthStore((s) => s.login)
 
   const handleLogin = async () => {
-    if (!username || !password) {
-      Alert.alert('Ошибка', 'Введите логин и пароль')
-      return
-    }
-    setLoading(true)
-    try {
-      const res = await client.post('/auth/login', {
-        username: username.trim(),
-        password: password,
-      })
-
-      const { access_token, user } = res.data
-      await login(access_token, user)
-
-    } catch (e) {
-      const status = e.response?.status
-      const detail = e.response?.data?.detail
-
-      Alert.alert(
-        'Ошибка входа',
-        typeof detail === 'string'
-          ? detail
-          : 'Неверный логин или пароль'
-      )
-    } finally {
-      setLoading(false)
-    }
+  if (!username || !password) {
+    Alert.alert('Ошибка', 'Введите логин и пароль')
+    return
   }
+  setLoading(true)
+  try {
+    const res = await client.post('/auth/login', {
+      username: username.trim(),
+      password: password,
+    })
+
+    const { access_token, user } = res.data
+    await login(access_token, user)
+
+  } catch (e) {
+    const status = e.response?.status
+    const data = e.response?.data
+
+    Alert.alert(
+      `Статус: ${status}`,
+      `Данные: ${JSON.stringify(data)}\n\nЛогин: "${username.trim()}"\nПароль длина: ${password.length}`
+    )
+  } finally {
+    setLoading(false)
+  }
+}
 
   return (
     <KeyboardAvoidingView
