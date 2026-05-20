@@ -10,10 +10,8 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native'
-import AsyncStorage from '@react-native-async-storage/async-storage'
+import client from '../api/client'
 import useAuthStore from '../store/authStore'
-
-const API_URL = 'https://restaurant-system-production-95b4.up.railway.app/api/v1'
 
 export default function LoginScreen({ navigation }) {
   const [username, setUsername] = useState('')
@@ -28,59 +26,26 @@ export default function LoginScreen({ navigation }) {
     }
     setLoading(true)
     try {
-      const res = await fetch(`${API_URL}/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify({
-          username: username.trim(),
-          password: password,
-        }),
+      const res = await client.post('/auth/login', {
+        username: username.trim(),
+        password: password,
       })
 
-      const data = await res.json()
-
-      if (!res.ok) {
-        Alert.alert(
-          'Ошибка входа',
-          typeof data.detail === 'string'
-            ? data.detail
-            : JSON.stringify(data)
-        )
-        return
-      }
-
-      const { access_token, user } = data
+      const { access_token, user } = res.data
       await login(access_token, user)
 
     } catch (e) {
-      Alert.alert('Ошибка сети', `${e.message}`)
+      const status = e.response?.status
+      const detail = e.response?.data?.detail
+
+      Alert.alert(
+        'Ошибка входа',
+        typeof detail === 'string'
+          ? detail
+          : 'Неверный логин или пароль'
+      )
     } finally {
       setLoading(false)
-    }
-  }
-
-  const testConnection = async () => {
-    // Тест 1 — Google
-    try {
-      const r = await fetch('https://www.google.com', { method: 'HEAD' })
-      Alert.alert('Google', `✅ OK: ${r.status}`)
-    } catch (e) {
-      Alert.alert('Google', `❌ ${e.message}`)
-      return
-    }
-
-    // Тест 2 — Railway
-    try {
-      const r = await fetch(
-        'https://restaurant-system-production-95b4.up.railway.app/api/v1/health'
-      )
-      const data = await r.json()
-      Alert.alert('Railway ✅', JSON.stringify(data))
-    } catch (e) {
-      Alert.alert('Railway ❌', `${e.message}`)
     }
   }
 
@@ -120,13 +85,6 @@ export default function LoginScreen({ navigation }) {
           ) : (
             <Text style={styles.buttonText}>Войти</Text>
           )}
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.testButton}
-          onPress={testConnection}
-        >
-          <Text style={styles.testButtonText}>🔍 Тест соединения</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -186,18 +144,8 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   buttonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
-  testButton: {
-    marginTop: 12,
-    padding: 12,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#52c41a',
-    width: '100%',
-    alignItems: 'center',
-  },
-  testButtonText: { color: '#52c41a', fontSize: 14 },
   qrButton: {
-    marginTop: 12,
+    marginTop: 16,
     padding: 12,
     borderRadius: 8,
     borderWidth: 1,

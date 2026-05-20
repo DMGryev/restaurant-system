@@ -1,7 +1,8 @@
 import axios from 'axios'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
-const API_URL = 'https://restaurant-system-production-95b4.up.railway.app/api/v1'
+// Cloudflare Worker решает проблему SSL на Android
+const API_URL = 'https://curly-glade-0d00.perpleepel19.workers.dev/api/v1'
 
 const client = axios.create({
   baseURL: API_URL,
@@ -10,8 +11,6 @@ const client = axios.create({
     'Accept': 'application/json',
   },
   timeout: 30000,
-  // Явно разрешаем все соединения
-  validateStatus: (status) => status < 500,
 })
 
 client.interceptors.request.use(async (config) => {
@@ -29,9 +28,6 @@ client.interceptors.request.use(async (config) => {
 client.interceptors.response.use(
   (response) => response,
   async (error) => {
-    console.log('Request error:', error.message)
-    console.log('Error code:', error.code)
-    console.log('Error config URL:', error.config?.url)
     if (error.response?.status === 401) {
       await AsyncStorage.removeItem('token')
       await AsyncStorage.removeItem('user')
