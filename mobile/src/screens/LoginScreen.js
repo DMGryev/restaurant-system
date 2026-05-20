@@ -10,7 +10,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native'
-import axios from 'axios'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import useAuthStore from '../store/authStore'
 
 const API_URL = 'https://restaurant-system-production-95b4.up.railway.app/api/v1'
@@ -26,52 +26,61 @@ export default function LoginScreen({ navigation }) {
       Alert.alert('Ошибка', 'Введите логин и пароль')
       return
     }
-
     setLoading(true)
-
     try {
-      // Используем чистый axios без interceptors для диагностики
-      const res = await axios({
+      const res = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
-        url: `${API_URL}/auth/login`,
-        data: {
-          username: username.trim(),
-          password: password,
-        },
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
-        timeout: 30000,
+        body: JSON.stringify({
+          username: username.trim(),
+          password: password,
+        }),
       })
 
-      const { access_token, user } = res.data
+      const data = await res.json()
+
+      if (!res.ok) {
+        Alert.alert(
+          'Ошибка входа',
+          typeof data.detail === 'string'
+            ? data.detail
+            : JSON.stringify(data)
+        )
+        return
+      }
+
+      const { access_token, user } = data
       await login(access_token, user)
 
     } catch (e) {
-      const status = e.response?.status
-      const detail = e.response?.data?.detail
-      const code = e.code
-      const message = e.message
-
-      Alert.alert(
-        `Ошибка ${status || code || 'неизвестна'}`,
-        `Сообщение: ${message}\n` +
-        `Код: ${code}\n` +
-        `Статус: ${status}\n` +
-        `Детали: ${typeof detail === 'string' ? detail : JSON.stringify(detail)}`
-      )
+      Alert.alert('Ошибка сети', `${e.message}`)
     } finally {
       setLoading(false)
     }
   }
 
   const testConnection = async () => {
+    // Тест 1 — Google
     try {
-      const res = await axios.get(`${API_URL}/health`, { timeout: 10000 })
-      Alert.alert('✅ Соединение OK', JSON.stringify(res.data))
+      const r = await fetch('https://www.google.com', { method: 'HEAD' })
+      Alert.alert('Google', `✅ OK: ${r.status}`)
     } catch (e) {
-      Alert.alert('❌ Нет соединения', `${e.message}\nКод: ${e.code}`)
+      Alert.alert('Google', `❌ ${e.message}`)
+      return
+    }
+
+    // Тест 2 — Railway
+    try {
+      const r = await fetch(
+        'https://restaurant-system-production-95b4.up.railway.app/api/v1/health'
+      )
+      const data = await r.json()
+      Alert.alert('Railway ✅', JSON.stringify(data))
+    } catch (e) {
+      Alert.alert('Railway ❌', `${e.message}`)
     }
   }
 
@@ -113,7 +122,6 @@ export default function LoginScreen({ navigation }) {
           )}
         </TouchableOpacity>
 
-        {/* Кнопка теста соединения */}
         <TouchableOpacity
           style={styles.testButton}
           onPress={testConnection}
@@ -153,7 +161,12 @@ const styles = StyleSheet.create({
   },
   emoji: { fontSize: 56 },
   title: { fontSize: 28, fontWeight: '700', color: '#1677ff', marginTop: 8 },
-  subtitle: { fontSize: 14, color: '#8c8c8c', marginBottom: 32, marginTop: 4 },
+  subtitle: {
+    fontSize: 14,
+    color: '#8c8c8c',
+    marginBottom: 32,
+    marginTop: 4,
+  },
   input: {
     width: '100%',
     borderWidth: 1,
