@@ -20,32 +20,70 @@ export default function LoginScreen({ navigation }) {
   const login = useAuthStore((s) => s.login)
 
   const handleLogin = async () => {
-  if (!username || !password) {
-    Alert.alert('Ошибка', 'Введите логин и пароль')
-    return
+    if (!username || !password) {
+      Alert.alert('Ошибка', 'Введите логин и пароль')
+      return
+    }
+    setLoading(true)
+    try {
+      // Шаг 1 — получаем токен
+      const res = await client.post('/auth/login', {
+        username: username.trim(),
+        password: password,
+      })
+
+      console.log('Login response:', JSON.stringify(res.data))
+
+      const access_token = 
+        res.data.access_token || 
+        res.data.token || 
+        res.data.accessToken
+
+      if (!access_token) {
+        Alert.alert('Ошибка', `Нет токена в ответе: ${JSON.stringify(res.data)}`)
+        return
+      }
+
+      // Шаг 2 — получаем данные пользователя
+      let user = res.data.user || res.data.userData || null
+
+      if (!user) {
+        // Если user не пришёл в ответе — запрашиваем отдельно
+        try {
+          const meRes = await client.get('/auth/me', {
+            headers: { Authorization: `Bearer ${access_token}` }
+          })
+          user = meRes.data
+          console.log('User from /me:', JSON.stringify(user))
+        } catch (meError) {
+          // Создаём минимального пользователя
+          user = { username: username.trim(), role: 'waiter' }
+          console.log('Using fallback user')
+        }
+      }
+
+      await login(access_token, user)
+
+    } catch (e) {
+      console.log('Login error:', e.message)
+      console.log('Response:', JSON.stringify(e.response?.data))
+      
+      const status = e.response?.status
+      const detail = e.response?.data?.detail
+
+      if (status === 401 || status === 403) {
+        Alert.alert('Ошибка', 'Неверный логин или пароль')
+      } else if (status === 422) {
+        Alert.alert('Ошибка', `Неверный формат данных: ${JSON.stringify(e.response?.data)}`)
+      } else if (!status) {
+        Alert.alert('Ошибка сети', e.message)
+      } else {
+        Alert.alert(`Ошибка ${status}`, typeof detail === 'string' ? detail : JSON.stringify(e.response?.data))
+      }
+    } finally {
+      setLoading(false)
+    }
   }
-  setLoading(true)
-  try {
-    const res = await client.post('/auth/login', {
-      username: username.trim(),
-      password: password,
-    })
-
-    const { access_token, user } = res.data
-    await login(access_token, user)
-
-  } catch (e) {
-    const status = e.response?.status
-    const data = e.response?.data
-
-    Alert.alert(
-      `Статус: ${status}`,
-      `Данные: ${JSON.stringify(data)}\n\nЛогин: "${username.trim()}"\nПароль длина: ${password.length}`
-    )
-  } finally {
-    setLoading(false)
-  }
-}
 
   return (
     <KeyboardAvoidingView

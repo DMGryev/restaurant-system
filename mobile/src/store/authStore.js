@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import client from '../api/client'
 
 const useAuthStore = create((set) => ({
   user: null,
@@ -7,14 +8,18 @@ const useAuthStore = create((set) => ({
   isAuthenticated: false,
 
   init: async () => {
-    const token = await AsyncStorage.getItem('token')
-    const userStr = await AsyncStorage.getItem('user')
-    if (token && userStr) {
-      set({
-        token,
-        user: JSON.parse(userStr),
-        isAuthenticated: true,
-      })
+    try {
+      const token = await AsyncStorage.getItem('token')
+      const userStr = await AsyncStorage.getItem('user')
+      if (token && userStr) {
+        set({
+          token,
+          user: JSON.parse(userStr),
+          isAuthenticated: true,
+        })
+      }
+    } catch (e) {
+      console.log('Init error:', e)
     }
   },
 
