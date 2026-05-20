@@ -10,8 +10,10 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native'
-import client from '../api/client'
+import axios from 'axios'
 import useAuthStore from '../store/authStore'
+
+const API_URL = 'https://restaurant-system-production-95b4.up.railway.app/api/v1'
 
 export default function LoginScreen({ navigation }) {
   const [username, setUsername] = useState('')
@@ -28,34 +30,48 @@ export default function LoginScreen({ navigation }) {
     setLoading(true)
 
     try {
-      console.log('Попытка входа:', username)
-      console.log('URL:', client.defaults.baseURL + '/auth/login')
-
-      const res = await client.post('/auth/login', {
-        username: username.trim(),
-        password: password,
+      // Используем чистый axios без interceptors для диагностики
+      const res = await axios({
+        method: 'POST',
+        url: `${API_URL}/auth/login`,
+        data: {
+          username: username.trim(),
+          password: password,
+        },
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        timeout: 30000,
       })
-
-      console.log('Ответ:', JSON.stringify(res.data))
 
       const { access_token, user } = res.data
       await login(access_token, user)
 
     } catch (e) {
-      // Показываем максимум информации об ошибке
       const status = e.response?.status
       const detail = e.response?.data?.detail
-      const data = e.response?.data
+      const code = e.code
       const message = e.message
 
       Alert.alert(
-        `Ошибка ${status || 'сети'}`,
-        `URL: ${client.defaults.baseURL}/auth/login\n\n` +
-        `Сообщение: ${message}\n\n` +
-        `Ответ: ${JSON.stringify(data) || 'нет ответа'}`
+        `Ошибка ${status || code || 'неизвестна'}`,
+        `Сообщение: ${message}\n` +
+        `Код: ${code}\n` +
+        `Статус: ${status}\n` +
+        `Детали: ${typeof detail === 'string' ? detail : JSON.stringify(detail)}`
       )
     } finally {
       setLoading(false)
+    }
+  }
+
+  const testConnection = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/health`, { timeout: 10000 })
+      Alert.alert('✅ Соединение OK', JSON.stringify(res.data))
+    } catch (e) {
+      Alert.alert('❌ Нет соединения', `${e.message}\nКод: ${e.code}`)
     }
   }
 
@@ -76,7 +92,6 @@ export default function LoginScreen({ navigation }) {
           onChangeText={setUsername}
           autoCapitalize="none"
           autoCorrect={false}
-          keyboardType="default"
         />
         <TextInput
           style={styles.input}
@@ -96,6 +111,14 @@ export default function LoginScreen({ navigation }) {
           ) : (
             <Text style={styles.buttonText}>Войти</Text>
           )}
+        </TouchableOpacity>
+
+        {/* Кнопка теста соединения */}
+        <TouchableOpacity
+          style={styles.testButton}
+          onPress={testConnection}
+        >
+          <Text style={styles.testButtonText}>🔍 Тест соединения</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -129,18 +152,8 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   emoji: { fontSize: 56 },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#1677ff',
-    marginTop: 8,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: '#8c8c8c',
-    marginBottom: 32,
-    marginTop: 4,
-  },
+  title: { fontSize: 28, fontWeight: '700', color: '#1677ff', marginTop: 8 },
+  subtitle: { fontSize: 14, color: '#8c8c8c', marginBottom: 32, marginTop: 4 },
   input: {
     width: '100%',
     borderWidth: 1,
@@ -159,13 +172,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 8,
   },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+  buttonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  testButton: {
+    marginTop: 12,
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#52c41a',
+    width: '100%',
+    alignItems: 'center',
   },
+  testButtonText: { color: '#52c41a', fontSize: 14 },
   qrButton: {
-    marginTop: 16,
+    marginTop: 12,
     padding: 12,
     borderRadius: 8,
     borderWidth: 1,
@@ -173,9 +192,5 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
   },
-  qrButtonText: {
-    color: '#1677ff',
-    fontSize: 15,
-    fontWeight: '500',
-  },
+  qrButtonText: { color: '#1677ff', fontSize: 15, fontWeight: '500' },
 })
