@@ -26,59 +26,27 @@ export default function LoginScreen({ navigation }) {
     }
     setLoading(true)
     try {
-      // Шаг 1 — получаем токен
       const res = await client.post('/auth/login', {
         username: username.trim(),
         password: password,
       })
 
-      console.log('Login response:', JSON.stringify(res.data))
-
-      const access_token = 
-        res.data.access_token || 
-        res.data.token || 
-        res.data.accessToken
-
-      if (!access_token) {
-        Alert.alert('Ошибка', `Нет токена в ответе: ${JSON.stringify(res.data)}`)
-        return
-      }
-
-      // Шаг 2 — получаем данные пользователя
-      let user = res.data.user || res.data.userData || null
-
-      if (!user) {
-        // Если user не пришёл в ответе — запрашиваем отдельно
-        try {
-          const meRes = await client.get('/auth/me', {
-            headers: { Authorization: `Bearer ${access_token}` }
-          })
-          user = meRes.data
-          console.log('User from /me:', JSON.stringify(user))
-        } catch (meError) {
-          // Создаём минимального пользователя
-          user = { username: username.trim(), role: 'waiter' }
-          console.log('Using fallback user')
-        }
-      }
-
+      const { access_token, user } = res.data
       await login(access_token, user)
 
     } catch (e) {
-      console.log('Login error:', e.message)
-      console.log('Response:', JSON.stringify(e.response?.data))
-      
       const status = e.response?.status
       const detail = e.response?.data?.detail
 
-      if (status === 401 || status === 403) {
+      if (status === 401) {
         Alert.alert('Ошибка', 'Неверный логин или пароль')
-      } else if (status === 422) {
-        Alert.alert('Ошибка', `Неверный формат данных: ${JSON.stringify(e.response?.data)}`)
-      } else if (!status) {
-        Alert.alert('Ошибка сети', e.message)
+      } else if (status === 403) {
+        Alert.alert('Ошибка', 'Аккаунт деактивирован')
       } else {
-        Alert.alert(`Ошибка ${status}`, typeof detail === 'string' ? detail : JSON.stringify(e.response?.data))
+        Alert.alert(
+          'Ошибка',
+          typeof detail === 'string' ? detail : e.message
+        )
       }
     } finally {
       setLoading(false)

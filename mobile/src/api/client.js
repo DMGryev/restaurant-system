@@ -1,7 +1,6 @@
 import axios from 'axios'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
-// Cloudflare Worker решает проблему SSL на Android
 const API_URL = 'https://curly-glade-0d00.perpleepel19.workers.dev/api/v1'
 
 const client = axios.create({
