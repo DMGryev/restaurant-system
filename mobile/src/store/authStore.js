@@ -1,6 +1,5 @@
 import { create } from 'zustand'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import client from '../api/client'
 
 const useAuthStore = create((set) => ({
   user: null,
@@ -18,9 +17,7 @@ const useAuthStore = create((set) => ({
           isAuthenticated: true,
         })
       }
-    } catch (e) {
-      console.log('Init error:', e)
-    }
+    } catch (e) {}
   },
 
   login: async (token, user) => {

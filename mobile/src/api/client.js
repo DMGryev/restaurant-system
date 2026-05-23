@@ -1,38 +1,28 @@
-import axios from 'axios'
-import AsyncStorage from '@react-native-async-storage/async-storage'
-
 const API_URL = 'https://curly-glade-0d00.perpleepel19.workers.dev/api/v1'
 
-const client = axios.create({
-  baseURL: API_URL,
-  headers: {
+export const apiRequest = async (method, path, body = null, token = null) => {
+  const headers = {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
-  },
-  timeout: 30000,
-})
-
-client.interceptors.request.use(async (config) => {
-  try {
-    const token = await AsyncStorage.getItem('token')
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
-  } catch (e) {
-    console.log('AsyncStorage error:', e)
   }
-  return config
-})
-
-client.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    if (error.response?.status === 401) {
-      await AsyncStorage.removeItem('token')
-      await AsyncStorage.removeItem('user')
-    }
-    return Promise.reject(error)
+  
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`
   }
-)
 
-export default client
+  const options = {
+    method: method.toUpperCase(),
+    headers,
+  }
+
+  if (body) {
+    options.body = JSON.stringify(body)
+  }
+
+  const response = await fetch(`${API_URL}${path}`, options)
+  const data = await response.json()
+  
+  return { ok: response.ok, status: response.status, data }
+}
+
+export default API_URL

@@ -1,17 +1,12 @@
 import React, { useState } from 'react'
 import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  Alert,
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
+  View, Text, TextInput, TouchableOpacity,
+  StyleSheet, Alert, ActivityIndicator,
 } from 'react-native'
-import client from '../api/client'
+import { apiRequest } from '../api/client'
 import useAuthStore from '../store/authStore'
+
+const WORKER = 'https://curly-glade-0d00.perpleepel19.workers.dev/api/v1'
 
 export default function LoginScreen({ navigation }) {
   const [username, setUsername] = useState('')
@@ -19,49 +14,51 @@ export default function LoginScreen({ navigation }) {
   const [loading, setLoading] = useState(false)
   const login = useAuthStore((s) => s.login)
 
+  const testConnection = async () => {
+    try {
+      const r = await fetch(WORKER + '/health')
+      const t = await r.text()
+      Alert.alert('Тест: ' + r.status, t)
+    } catch (e) {
+      Alert.alert('Ошибка', e.message)
+    }
+  }
+
   const handleLogin = async () => {
-    if (!username || !password) {
+    if (!username.trim() || !password) {
       Alert.alert('Ошибка', 'Введите логин и пароль')
       return
     }
     setLoading(true)
     try {
-      const res = await client.post('/auth/login', {
-        username: username.trim(),
-        password: password,
-      })
+      const { ok, status, data } = await apiRequest(
+        'POST',
+        '/auth/login',
+        { username: username.trim(), password }
+      )
 
-      const { access_token, user } = res.data
-      await login(access_token, user)
-
-    } catch (e) {
-      const status = e.response?.status
-      const detail = e.response?.data?.detail
-
-      if (status === 401) {
-        Alert.alert('Ошибка', 'Неверный логин или пароль')
-      } else if (status === 403) {
-        Alert.alert('Ошибка', 'Аккаунт деактивирован')
+      if (ok && data.access_token) {
+        await login(data.access_token, data.user)
       } else {
         Alert.alert(
-          'Ошибка',
-          typeof detail === 'string' ? detail : e.message
+          `Ошибка ${status}`,
+          typeof data.detail === 'string'
+            ? data.detail
+            : JSON.stringify(data)
         )
       }
+    } catch (e) {
+      Alert.alert('Ошибка сети', e.message)
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
+    <View style={styles.container}>
       <View style={styles.card}>
         <Text style={styles.emoji}>🍽️</Text>
         <Text style={styles.title}>RestaurantOS</Text>
-        <Text style={styles.subtitle}>Система управления рестораном</Text>
 
         <TextInput
           style={styles.input}
@@ -84,21 +81,27 @@ export default function LoginScreen({ navigation }) {
           onPress={handleLogin}
           disabled={loading}
         >
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.buttonText}>Войти</Text>
-          )}
+          {loading
+            ? <ActivityIndicator color="#fff" />
+            : <Text style={styles.buttonText}>Войти</Text>
+          }
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={styles.qrButton}
+          style={styles.testBtn}
+          onPress={testConnection}
+        >
+          <Text style={styles.testText}>🔍 Тест соединения</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.qrBtn}
           onPress={() => navigation.navigate('QRScan')}
         >
-          <Text style={styles.qrButtonText}>📷 Войти по QR-бейджику</Text>
+          <Text style={styles.qrText}>📷 Войти по QR</Text>
         </TouchableOpacity>
       </View>
-    </KeyboardAvoidingView>
+    </View>
   )
 }
 
@@ -113,21 +116,17 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 16,
     padding: 40,
-    width: 400,
+    width: 380,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
     elevation: 8,
   },
   emoji: { fontSize: 56 },
-  title: { fontSize: 28, fontWeight: '700', color: '#1677ff', marginTop: 8 },
-  subtitle: {
-    fontSize: 14,
-    color: '#8c8c8c',
-    marginBottom: 32,
-    marginTop: 4,
+  title: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#1677ff',
+    marginBottom: 24,
+    marginTop: 8,
   },
   input: {
     width: '100%',
@@ -137,7 +136,6 @@ const styles = StyleSheet.create({
     padding: 12,
     fontSize: 16,
     marginBottom: 12,
-    backgroundColor: '#fafafa',
   },
   button: {
     width: '100%',
@@ -145,17 +143,27 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 14,
     alignItems: 'center',
-    marginTop: 8,
+    marginTop: 4,
   },
   buttonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
-  qrButton: {
-    marginTop: 16,
-    padding: 12,
+  testBtn: {
+    marginTop: 12,
+    padding: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#52c41a',
+    width: '100%',
+    alignItems: 'center',
+  },
+  testText: { color: '#52c41a', fontSize: 13 },
+  qrBtn: {
+    marginTop: 8,
+    padding: 10,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#1677ff',
     width: '100%',
     alignItems: 'center',
   },
-  qrButtonText: { color: '#1677ff', fontSize: 15, fontWeight: '500' },
+  qrText: { color: '#1677ff', fontSize: 13 },
 })
