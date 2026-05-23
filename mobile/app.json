@@ -19,7 +19,8 @@
       "package": "com.restaurant.mobile",
       "permissions": [
         "android.permission.CAMERA",
-        "android.permission.INTERNET"
+        "android.permission.INTERNET",
+        "android.permission.RECORD_AUDIO"
       ]
     },
     "plugins": [
@@ -32,7 +33,7 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "41613533-f132-4542-bea1-965c5127580d"
+        "projectId": "93bb1014-bc87-427e-945d-974ec105bbc4"
       }
     }
   }
