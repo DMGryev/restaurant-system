@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from typing import List
@@ -33,6 +33,28 @@ async def get_user(
     return UserResponse.model_validate(user)
 
 
+@router.get("/{user_id}/qr")
+async def get_user_qr(
+    user_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_roles(Role.ADMIN, Role.MANAGER)),
+):
+    """Получить данные для QR-кода сотрудника"""
+    result = await db.execute(select(User).where(User.id == user_id))
+    user = result.scalar_one_or_none()
+    
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Возвращаем ID пользователя как данные для QR-кода
+    return {
+        "qr_data": str(user.id),
+        "user_id": user.id,
+        "username": user.username,
+        "full_name": user.full_name
+    }
+
+
 @router.patch("/{user_id}", response_model=UserResponse)
 async def update_user(
     user_id: int,
@@ -44,11 +66,11 @@ async def update_user(
     user = result.scalar_one_or_none()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-
+    
     update_data = data.model_dump(exclude_unset=True)
     for key, value in update_data.items():
         setattr(user, key, value)
-
+    
     await db.flush()
     await db.refresh(user)
     return UserResponse.model_validate(user)
@@ -64,6 +86,7 @@ async def deactivate_user(
     user = result.scalar_one_or_none()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+    
     user.is_active = False
     await db.flush()
     return {"detail": "User deactivated"}

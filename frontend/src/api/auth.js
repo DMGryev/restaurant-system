@@ -12,4 +12,7 @@ export const authAPI = {
 
   registerUser: (data) =>
     client.post('/auth/register', data),
+  
+  loginByQr: (qrToken) => 
+    client.post('/auth/login/qr', { qr_token: qrToken }),
 }

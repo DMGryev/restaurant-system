@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react'
-import { Table, Card, Button, Tag, Typography, message, Switch, Space } from 'antd'
+import { Table, Card, Button, Tag, Typography, message, Space } from 'antd'
 import { ReloadOutlined } from '@ant-design/icons'
 import { authAPI } from '../../api/auth'
 import client from '../../api/client'
+import UserQrModal from './UserQrModal'  // ← ДОБАВИТЬ ИМПОРТ
 
 const { Title } = Typography
 
@@ -63,12 +64,17 @@ export default function UsersPage() {
       key: 'is_active',
       render: (active) => active ? <Tag color="green">Да</Tag> : <Tag color="red">Нет</Tag>,
     },
+    {
+      title: 'QR-вход',  // ← НОВАЯ КОЛОНКА
+      key: 'qr',
+      render: (_, record) => <UserQrModal user={record} />,
+    },
   ]
 
   return (
     <div>
       <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Title level={3}>👨‍💼 Сотрудники</Title>
+        <Title level={3}>👨💼 Сотрудники</Title>
         <Button icon={<ReloadOutlined />} onClick={loadUsers}>Обновить</Button>
       </div>
 
